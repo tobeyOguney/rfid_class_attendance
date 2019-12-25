@@ -1,5 +1,6 @@
 import uuid
 import datetime
+import time
 
 from app.main import db
 from app.main.model.attendance import Attendance
@@ -14,7 +15,8 @@ def create_attendance(data):
             session = data['session'],
             semester = data['semester'],
             course = data['course'],
-            created_on = datetime.datetime.utcnow()
+            created_on = datetime.datetime.utcnow(),
+            hash_key = int(round(time.time() * 1000))
         )
         save_changes(new_attendance)
         return generate_token(new_attendance)
@@ -47,16 +49,16 @@ def update_attendance(public_id, data):
         }
         return response_object, 409
 
-def commit_attendance(public_id, data):
-    attendance = Attendance.query.filter_by(public_id=public_id).first()
+def commit_attendance(hash_key, data):
+    attendance = Attendance.query.filter_by(hash_key=hash_key).first()
     if attendance:
-        student = Student.query.filter_by(public_id=data['public_id']).first()
+        student = Student.query.filter_by(student_id=data['student_id']).first()
         if student:
             attendance.students.append()
             save_changes(attendance)
             response_object = {
                 'status': 'success',
-                'message': 'Successfully removed.'
+                'message': 'Successfully commited.'
             }
             return response_object, 201
         else:

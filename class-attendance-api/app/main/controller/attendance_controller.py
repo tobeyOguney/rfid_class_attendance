@@ -48,12 +48,12 @@ class AttendanceProfile(Resource):
         return remove_attendance(public_id)
 
 
-@api.route('/commit/<public_id>')
-@api.param('public_id', 'The Attendance identifier')
+@api.route('/commit/<hash_key>')
+@api.param('hash_key', 'The Attendance hash key')
 @api.response(404, 'Attendance not found.')
 class AttendanceSession(Resource):
     @api.doc('commit to an attendance session')
     @api.expect(_student_id, validate=True)
-    def put(self, public_id):
+    def put(self, hash_key):
         data = request.json
-        return commit_attendance(public_id=public_id, data=data)
+        return commit_attendance(hash_key=hash_key, data=data)
