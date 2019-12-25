@@ -10,6 +10,7 @@ class Attendance(db.Model):
     session = db.Column(db.String(255), nullable=False)
     semester = db.Column(db.String(255), nullable=False)
     created_on = db.Column(db.DateTime, nullable=False)
+    hash_key = db.Column(db.Integer)
     course = db.relationship('course', backref='attendance')
     lecturer = db.relationship('lecturer', backref='attendance')
     students = db.relationship("student", secondary=student_attendance, backref="attendance")
