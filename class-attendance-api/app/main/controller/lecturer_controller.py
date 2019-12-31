@@ -8,12 +8,13 @@ from ..service.lecturer_service import (create_lecturer, get_lecturer,
 api = LecturerDto.api
 _lecturer = LecturerDto.lecturer
 _lecturer_update = LecturerDto.lecturer_update
+_lecturer_response = LecturerDto.lecturer_response
 
 
 @api.route('/')
 class Lecturer(Resource):
     @api.doc('List Of Registered Lecturers')
-    @api.marshal_list_with(_lecturer)
+    @api.marshal_list_with(_lecturer_response)
     def get(self):
         """List all registered lecturers"""
         return get_all_lecturers()
@@ -32,21 +33,19 @@ class Lecturer(Resource):
 @api.response(404, 'Lecturer not found.')
 class LecturerProfile(Resource):
     @api.doc('get a lecturer\'s profile')
-    @api.marshal_with(_lecturer)
+    @api.marshal_with(_lecturer_response)
     def get(self, public_id):
         """get a lecturer\'s profile given its identifier"""
         lecturer = get_lecturer(public_id)
-        if not lecturer:
-            api.abort(404)
-        else:
-            return lecturer
+        return lecturer
 
     @api.doc('updates an existing lecturer')
     @api.expect(_lecturer_update, validate=True)
-    def put(self):
+    @api.marshal_with(_lecturer_response)
+    def put(self, public_id):
         """Updates an existing Lecturer """
         data = request.json
-        return update_lecturer(data=data)
+        return update_lecturer(public_id, data=data)
 
     @api.doc('remove a lecturer\'s profile')
     def delete(self, public_id):

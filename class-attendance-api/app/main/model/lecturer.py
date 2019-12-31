@@ -3,24 +3,25 @@ from .. import db, flask_bcrypt
 import datetime
 from app.main.model.blacklist import BlacklistToken
 from ..config import key
-from .lecturer_course import lecturer_course
 import jwt
+
+from .lecturer_course import LecturerCourse
 
 
 class Lecturer(db.Model):
     """ Lecturer Model for storing lecturer related details """
     __tablename__ = "lecturer"
 
-    lecturer_id = db.Column(db.Integer, primary_key=True)
+    lecturer_id = db.Column(db.String, primary_key=True)
     first_name = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(255), nullable=False)
     email_address = db.Column(db.String(255), unique=True, nullable=False)
     faculty = db.Column(db.String(255), nullable=False)
     department = db.Column(db.String(255), nullable=False)
-    level = db.Column(db.Integer, nullable=False)
+    level = db.Column(db.String, nullable=False)
     password_hash = db.Column(db.String(100))
-    courses = db.relationship("course", secondary=lecturer_course, backref="lecturer")
-    attendance_sessions = db.Column('attendance_id', db.Integer, db.ForeignKey('attendance.public_id'))
+    courses = db.relationship("Course", secondary="lecturer_course", backref=db.backref("lecturer"))
+    attendance_sessions = db.relationship("Attendance", backref=db.backref('lecturer'), uselist=True)
     public_id = db.Column(db.String(100), unique=True)
 
     @property

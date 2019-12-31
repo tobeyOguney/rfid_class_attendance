@@ -1,5 +1,6 @@
 import uuid
 import datetime
+import flask_bcrypt
 
 from app.main import db
 from app.main.model.lecturer import Lecturer
@@ -31,27 +32,41 @@ def create_lecturer(data):
 
 
 def get_all_lecturers():
-    return Lecturer.query.all()
+    lecturers = Lecturer.query.all()
+    if lecturers:
+        return lecturers
+    else:
+        response_object = {
+            'status': 'fail',
+            'message': 'No Lecturer exists.',
+        }
+        return response_object, 409
 
 
 def get_lecturer(public_id):
-    return Lecturer.query.filter_by(public_id=public_id).first()
-
-
-def update_lecturer(data):
-    lecturer = Lecturer.query.filter_by(lecturer_id=data['lecturer_id']).first()
+    lecturer = Lecturer.query.filter_by(public_id=public_id).first()
     if lecturer:
-        new_lecturer = Lecturer(
-            first_name = data['first_name'],
-            last_name = data['last_name'],
-            email_address = data['email_address'],
-            faculty = data['faculty'],
-            department = data['department'],
-            level = data['level'],
-            password = data['password']
-        )
-        save_changes(new_lecturer)
-        return generate_token(new_lecturer)
+        return lecturer
+    else:
+        response_object = {
+            'status': 'fail',
+            'message': 'Lecturer does not exist.',
+        }
+        return response_object, 409
+
+
+def update_lecturer(public_id, data):
+    lecturer = Lecturer.query.filter_by(public_id=public_id).first()
+    if lecturer:
+        lecturer.first_name = data['first_name']
+        lecturer.last_name = data['last_name']
+        lecturer.email_address = data['email_address']
+        lecturer.faculty = data['faculty']
+        lecturer.department = data['department']
+        lecturer.level = data['level']
+        lecturer.password_hash = flask_bcrypt.generate_password_hash(data['password']).decode('utf-8')
+        save_changes(lecturer)
+        return lecturer, 201
     else:
         response_object = {
             'status': 'fail',
@@ -63,7 +78,7 @@ def update_lecturer(data):
 def remove_lecturer(public_id):
     lecturer = Lecturer.query.filter_by(public_id=public_id).first()
     if lecturer:
-        lecturer.delete()
+        Lecturer.query.filter_by(public_id=public_id).delete()
         db.session.commit()
         response_object = {
             'status': 'success',
@@ -78,11 +93,13 @@ def remove_lecturer(public_id):
         return response_object, 409
 
 
-def get_lecturer_courses(public_id):
+def get_lecturer_courses(public_id, registered):
     lecturer = Lecturer.query.filter_by(public_id=public_id).first()
     if lecturer:
-        courses = Course.query.filter_by(department=lecturer.department)
-        return courses
+        if registered:
+            return lecturer.courses
+        else:
+            return Course.query.filter_by(department=lecturer.department).all()
     else:
         response_object = {
             'status': 'fail',
@@ -93,8 +110,8 @@ def get_lecturer_courses(public_id):
 
 def update_lecturer_course(public_id, data):
     lecturer = Lecturer.query.filter_by(public_id=public_id).first()
-    if lecturer:
-        course = Course.query.filter_by(public_id=data['public_id'])
+    course = Course.query.filter_by(public_id=data['public_id']).first()
+    if lecturer and course:
         lecturer.courses.append(course)
         save_changes(lecturer)
         response_object = {
@@ -105,15 +122,15 @@ def update_lecturer_course(public_id, data):
     else:
         response_object = {
             'status': 'fail',
-            'message': 'Lecturer does not exist.',
+            'message': 'Lecturer or Course does not exist.',
         }
         return response_object, 409
 
 
-def remove_lecturer_course():
+def remove_lecturer_course(public_id, data):
     lecturer = Lecturer.query.filter_by(public_id=public_id).first()
-    if lecturer:
-        course = Course.query.filter_by(public_id=data['public_id'])
+    course = Course.query.filter_by(public_id=data['public_id']).first()
+    if lecturer and course:
         lecturer.courses.remove(course)
         response_object = {
             'status': 'success',
@@ -123,7 +140,7 @@ def remove_lecturer_course():
     else:
         response_object = {
             'status': 'fail',
-            'message': 'Lecturer does not exist.',
+            'message': 'Lecturer or Course does not exist.',
         }
         return response_object, 409
 
@@ -135,6 +152,7 @@ def generate_token(lecturer):
         response_object = {
             'status': 'success',
             'message': 'Successfully created.',
+            'public_id': lecturer.public_id,
             'Authorization': auth_token.decode()
         }
         return response_object, 201

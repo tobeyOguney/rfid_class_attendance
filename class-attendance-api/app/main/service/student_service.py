@@ -1,8 +1,10 @@
 import uuid
 import datetime
+import flask_bcrypt
 
 from app.main import db
 from app.main.model.student import Student
+from app.main.model.course import Course
 
 
 def create_student(data):
@@ -30,27 +32,41 @@ def create_student(data):
 
 
 def get_all_students():
-    return Student.query.all()
+    students = Student.query.all()
+    if students:
+        return students
+    else:
+        response_object = {
+            'status': 'fail',
+            'message': 'Student does not exist.',
+        }
+        return response_object, 409
 
 
 def get_student(public_id):
-    return Student.query.filter_by(public_id=public_id).first()
-
-
-def update_student(data):
-    student = Student.query.filter_by(student_id=data['student_id']).first()
+    student = Student.query.filter_by(public_id=public_id).first()
     if student:
-        new_student = Student(
-            first_name = data['first_name'],
-            last_name = data['last_name'],
-            email_address = data['email_address'],
-            faculty = data['faculty'],
-            department = data['department'],
-            level = data['level'],
-            password = data['password']
-        )
-        save_changes(new_student)
-        return generate_token(new_student)
+        return student
+    else:
+        response_object = {
+            'status': 'fail',
+            'message': 'Student does not exist.',
+        }
+        return response_object, 409
+
+
+def update_student(public_id, data):
+    student = Student.query.filter_by(public_id=public_id).first()
+    if student:
+        student.first_name = data['first_name']
+        student.last_name = data['last_name']
+        student.email_address = data['email_address']
+        student.faculty = data['faculty']
+        student.department = data['department']
+        student.level = data['level']
+        student.password_hash = flask_bcrypt.generate_password_hash(data['password']).decode('utf-8')
+        save_changes(student)
+        return student, 201
     else:
         response_object = {
             'status': 'fail',
@@ -62,7 +78,7 @@ def update_student(data):
 def remove_student(public_id):
     student = Student.query.filter_by(public_id=public_id).first()
     if student:
-        student.delete()
+        Student.query.filter_by(public_id=public_id).delete()
         db.session.commit()
         response_object = {
             'status': 'success',
@@ -77,11 +93,13 @@ def remove_student(public_id):
         return response_object, 409
 
 
-def get_student_courses(public_id):
+def get_student_courses(public_id, registered):
     student = Student.query.filter_by(public_id=public_id).first()
     if student:
-        courses = Course.query.filter_by(department=student.department)
-        return courses
+        if registered:
+            return student.courses
+        else:
+            return Course.query.filter_by(department=student.department).all()
     else:
         response_object = {
             'status': 'fail',
@@ -92,8 +110,8 @@ def get_student_courses(public_id):
 
 def update_student_course(public_id, data):
     student = Student.query.filter_by(public_id=public_id).first()
-    if student:
-        course = Course.query.filter_by(public_id=data['public_id'])
+    course = Course.query.filter_by(public_id=data['public_id']).first()
+    if student and course:
         student.courses.append(course)
         save_changes(student)
         response_object = {
@@ -104,15 +122,15 @@ def update_student_course(public_id, data):
     else:
         response_object = {
             'status': 'fail',
-            'message': 'Lecturer does not exist.',
+            'message': 'Student or Course does not exist.',
         }
         return response_object, 409
 
 
-def remove_student_course():
+def remove_student_course(public_id, data):
     student = Student.query.filter_by(public_id=public_id).first()
-    if student:
-        course = Course.query.filter_by(public_id=data['public_id'])
+    course = Course.query.filter_by(public_id=data['public_id']).first()
+    if student and course:
         student.courses.remove(course)
         response_object = {
             'status': 'success',
@@ -122,7 +140,7 @@ def remove_student_course():
     else:
         response_object = {
             'status': 'fail',
-            'message': 'Lecturer does not exist.',
+            'message': 'Student or Course does not exist.',
         }
         return response_object, 409
 
@@ -134,6 +152,7 @@ def generate_token(student):
         response_object = {
             'status': 'success',
             'message': 'Successfully created.',
+            'public_id': student.public_id,
             'Authorization': auth_token.decode()
         }
         return response_object, 201

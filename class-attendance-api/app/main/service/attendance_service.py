@@ -4,44 +4,41 @@ import time
 
 from app.main import db
 from app.main.model.attendance import Attendance
+from app.main.model.lecturer import Lecturer
 from app.main.model.student import Student
+from app.main.model.course import Course
 
 
 def create_attendance(data):
-    attendance = Attendance.query.filter_by(attendance_id=data['attendance_id']).first()
-    if not attendance:
+    lecturer = Lecturer.query.filter_by(lecturer_id=data["lecturer_id"]).first()
+    course = Course.query.filter_by(course_code=data['course_code']).first()
+    if lecturer and course:
         new_attendance = Attendance(
             public_id=str(uuid.uuid4()),
             session = data['session'],
             semester = data['semester'],
-            course = data['course'],
+            open = True,
             created_on = datetime.datetime.utcnow(),
             hash_key = int(round(time.time() * 1000))
         )
         save_changes(new_attendance)
-        return generate_token(new_attendance)
+        lecturer.attendance_sessions.append(new_attendance)
+        course.attendance_sessions.append(new_attendance)
+        save_changes(lecturer)
+        save_changes(course)
+        return new_attendance, 201
     else:
         response_object = {
             'status': 'fail',
-            'message': 'Attendance already exists.',
+            'message': 'Lecturer or Course does not exist.',
         }
         return response_object, 409
 
 
 def get_attendance(public_id):
-    return Attendance.query.filter_by(public_id=public_id).first()
-
-
-def update_attendance(public_id, data):
     attendance = Attendance.query.filter_by(public_id=public_id).first()
     if attendance:
-        new_attendance = Attendance(
-            session = data['session'],
-            semester = data['semester'],
-            course = data['course']
-        )
-        save_changes(new_attendance)
-        return generate_token(new_attendance)
+        return attendance, 201
     else:
         response_object = {
             'status': 'fail',
@@ -49,12 +46,73 @@ def update_attendance(public_id, data):
         }
         return response_object, 409
 
+
+def get_students(public_id):
+    attendance = Attendance.query.filter_by(public_id=public_id).first()
+    if attendance:
+        return attendance.students, 201
+    else:
+        response_object = {
+            'status': 'fail',
+            'message': 'Attendance does not exist.'
+        }
+        return response_object, 409
+
+
+def update_attendance(public_id, data):
+    attendance = Attendance.query.filter_by(public_id=public_id).first()
+    if attendance:
+        attendance.session = data['session']
+        attendance.semester = data['semester']
+        save_changes(attendance)
+        return attendance, 201
+    else:
+        response_object = {
+            'status': 'fail',
+            'message': 'Attendance does not exist.'
+        }
+        return response_object, 409
+
+def close_attendance(public_id):
+    attendance = Attendance.query.filter_by(public_id=public_id).first()
+    if attendance:
+        attendance.open = False
+        save_changes(attendance)
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully closed.'
+        }
+        return response_object, 201
+    else:
+        response_object = {
+                'status': 'fail',
+                'message': 'Attendance does not exist.',
+        }
+        return response_object, 409
+
+
+def check_attendance(hash_key):
+    attendance = Attendance.query.filter_by(hash_key=hash_key).first()
+    if attendance and attendance.open:
+        response_object = {
+            'status': 'success',
+            'message': 'Writable Attendance.'
+        }
+        return response_object, 201
+    else:
+        response_object = {
+                'status': 'fail',
+                'message': 'Attendance is closed or does not exist.',
+        }
+        return response_object, 409
+
+
 def commit_attendance(hash_key, data):
     attendance = Attendance.query.filter_by(hash_key=hash_key).first()
-    if attendance:
+    if attendance and attendance.open:
         student = Student.query.filter_by(student_id=data['student_id']).first()
         if student:
-            attendance.students.append()
+            attendance.students.append(student)
             save_changes(attendance)
             response_object = {
                 'status': 'success',
@@ -70,7 +128,7 @@ def commit_attendance(hash_key, data):
     else:
         response_object = {
             'status': 'fail',
-            'message': 'Attendance does not exist.',
+            'message': 'Attendance is closed or does not exist.',
         }
         return response_object, 409
 
@@ -78,7 +136,7 @@ def commit_attendance(hash_key, data):
 def remove_attendance(public_id):
     attendance = Attendance.query.filter_by(public_id=public_id).first()
     if attendance:
-        attendance.delete()
+        Attendance.query.filter_by(public_id=public_id).delete()
         db.session.commit()
         response_object = {
             'status': 'success',
@@ -91,24 +149,6 @@ def remove_attendance(public_id):
             'message': 'Attendance does not exist.',
         }
         return response_object, 409
-
-
-def generate_token():
-    try:
-        # generate the auth token
-        auth_token = Attendance.encode_auth_token(attendance.attendance_code)
-        response_object = {
-            'status': 'success',
-            'message': 'Successfully created.',
-            'Authorization': auth_token.decode()
-        }
-        return response_object, 201
-    except Exception as e:
-        response_object = {
-            'status': 'fail',
-            'message': 'Some error occurred. Please try again.'
-        }
-        return response_object, 401
 
 
 def save_changes(data):

@@ -8,12 +8,13 @@ from ..service.student_service import (create_student, get_student,
 api = StudentDto.api
 _student = StudentDto.student
 _student_update = StudentDto.student_update
+_student_response = StudentDto.student_response
 
 
 @api.route('/')
 class Student(Resource):
     @api.doc('List Of Registered Students')
-    @api.marshal_list_with(_student)
+    @api.marshal_list_with(_student_response)
     def get(self):
         """List all registered students"""
         return get_all_students()
@@ -32,21 +33,19 @@ class Student(Resource):
 @api.response(404, 'Student not found.')
 class StudentProfile(Resource):
     @api.doc('get a student\'s profile')
-    @api.marshal_with(_student)
+    @api.marshal_with(_student_response)
     def get(self, public_id):
         """get a student\'s profile given its identifier"""
         student = get_student(public_id)
-        if not student:
-            api.abort(404)
-        else:
-            return student
+        return student
 
     @api.doc('updates an existing student')
     @api.expect(_student_update, validate=True)
-    def put(self):
+    @api.marshal_with(_student_response)
+    def put(self, public_id):
         """Updates an existing Student """
         data = request.json
-        return update_student(data=data)
+        return update_student(public_id, data=data)
 
     @api.doc('remove a student\'s profile')
     def delete(self, public_id):

@@ -1,0 +1,25 @@
+{
+    "name": "attendance-web-app",
+    "authors": [
+        "Oluwatobi Ogunbayo"
+    ],
+    "description": "A web application for a rfid-based class attendance system",
+    "main": "public/index.html",
+    "keywords": [
+        "material",
+        "design",
+        "material-ui",
+        "material",
+        "google",
+        "twitter"
+    ],
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests",
+        "build"
+    ],
+    "private": true
+}

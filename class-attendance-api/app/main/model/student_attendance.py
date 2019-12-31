@@ -1,6 +1,6 @@
 from .. import db
 
-student_attendance = db.Table('student_attendance',
-    db.Column('student_id', db.Integer, db.ForeignKey('student.public_id')),
-    db.Column('attendance_id', db.Integer, db.ForeignKey('attendance.public_id'))
-)
+class StudentAttendance(db.Model):
+    __tablename__ = 'student_attendance'
+    student_id = db.Column(db.String, db.ForeignKey('student.student_id'),  primary_key=True)
+    attendance_id = db.Column(db.Integer, db.ForeignKey('attendance.public_id'), primary_key=True)
