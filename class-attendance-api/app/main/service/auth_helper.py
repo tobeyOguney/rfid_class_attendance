@@ -9,13 +9,14 @@ class Auth:
     def login_student(data):
         try:
             # fetch the student data
-            student = Student.query.filter_by(email=data.get('email_address')).first()
+            student = Student.query.filter_by(email_address=data.get('email_address')).first()
             if student and student.check_password(data.get('password')):
-                auth_token = Student.encode_auth_token(student.id)
+                auth_token = Student.encode_auth_token(student.student_id)
                 if auth_token:
                     response_object = {
                         'status': 'success',
                         'message': 'Successfully logged in.',
+                        'public_id': student.public_id,
                         'Authorization': auth_token.decode()
                     }
                     return response_object, 200
@@ -65,7 +66,7 @@ class Auth:
         if auth_token:
             resp = Student.decode_auth_token(auth_token)
             if not isinstance(resp, str):
-                student = Student.query.filter_by(id=resp).first()
+                student = Student.query.filter_by(student_id=resp).first()
                 response_object = {
                     'status': 'success',
                     'data': {
@@ -91,13 +92,14 @@ class Auth:
     def login_lecturer(data):
         try:
             # fetch the lecturer data
-            lecturer = Lecturer.query.filter_by(email=data.get('email')).first()
+            lecturer = Lecturer.query.filter_by(email_address=data.get('email')).first()
             if lecturer and lecturer.check_password(data.get('password')):
                 auth_token = Lecturer.encode_auth_token(lecturer.lecturer_id)
                 if auth_token:
                     response_object = {
                         'status': 'success',
                         'message': 'Successfully logged in.',
+                        'public_id': lecturer.public_id,
                         'Authorization': auth_token.decode()
                     }
                     return response_object, 200
@@ -147,11 +149,11 @@ class Auth:
         if auth_token:
             resp = Lecturer.decode_auth_token(auth_token)
             if not isinstance(resp, str):
-                lecturer = Lecturer.query.filter_by(id=resp).first()
+                lecturer = Lecturer.query.filter_by(lecturer_id=resp).first()
                 response_object = {
                     'status': 'success',
                     'data': {
-                        'lecturer_id': lecturer.id,
+                        'lecturer_id': lecturer.lecturer_id,
                         'public_id': lecturer.public_id,
                         'email_address': lecturer.email_address
                     }
