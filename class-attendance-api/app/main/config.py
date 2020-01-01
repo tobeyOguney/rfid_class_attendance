@@ -1,7 +1,7 @@
 import os
 
 # uncomment the line below for postgres database url from environment variable
-# postgres_local_base = os.environ['DATABASE_URL']
+postgres_local_base = "postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}".format(**postgres_params)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
