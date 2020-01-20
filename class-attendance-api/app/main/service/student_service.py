@@ -103,7 +103,7 @@ def get_student_courses(public_id, registered):
                 or_(Course.department==student.department, Course.strict==False),
                 ~Course.public_id.in_([course.public_id for course in student.courses])
             )
-        )
+        ).all()
         if registered:
             return reg_courses
         else:
