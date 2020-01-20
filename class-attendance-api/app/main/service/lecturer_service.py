@@ -101,7 +101,7 @@ def get_lecturer_courses(public_id, registered):
         unreg_courses = Course.query.filter(
             and_(
                 or_(Course.department==lecturer.department, Course.strict==False),
-                ~Course.public_id.in_([course.public_id for course in lecturer_courses])
+                ~Course.public_id.in_([course.public_id for course in lecturer.courses])
             )
         )
         if registered:
