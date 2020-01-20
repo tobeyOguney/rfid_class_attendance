@@ -96,7 +96,7 @@ def remove_lecturer(public_id):
 def get_lecturer_courses(public_id, registered):
     lecturer = Lecturer.query.filter_by(public_id=public_id).first()
     if lecturer:
-        dept_courses = Course.query.filter(Course.department==lecturer.department or Course.strict==False).all()
+        dept_courses = Course.query.filter(or_(Course.department==lecturer.department, Course.strict==False)).all()
         reg_courses = lecturer.courses
         if registered:
             return reg_courses

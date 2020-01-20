@@ -96,7 +96,7 @@ def remove_student(public_id):
 def get_student_courses(public_id, registered):
     student = Student.query.filter_by(public_id=public_id).first()
     if student:
-        dept_courses = Course.query.filter(Course.department==student.department or Course.strict==False).all()
+        dept_courses = Course.query.filter(or_(Course.department==student.department, Course.strict==False)).all()
         reg_courses = student.courses
         if registered:
             return reg_courses
