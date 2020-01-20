@@ -1,7 +1,7 @@
 import uuid
 import datetime
 import flask_bcrypt
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 
 from app.main import db
 from app.main.model.lecturer import Lecturer
