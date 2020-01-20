@@ -1,6 +1,7 @@
 import uuid
 import datetime
 import flask_bcrypt
+from sqlalchemy import or_
 
 from app.main import db
 from app.main.model.lecturer import Lecturer
@@ -96,19 +97,16 @@ def remove_lecturer(public_id):
 def get_lecturer_courses(public_id, registered):
     lecturer = Lecturer.query.filter_by(public_id=public_id).first()
     if lecturer:
-        dept_courses = Course.query.filter(or_(Course.department==lecturer.department, Course.strict==False)).all()
         reg_courses = lecturer.courses
+        unreg_courses = Course.query.filter(
+            and_(
+                or_(Course.department==lecturer.department, Course.strict==False),
+                ~Course.public_id.in_([course.public_id for course in lecturer_courses])
+            )
+        )
         if registered:
             return reg_courses
         else:
-            reg_course_ids = [str(course.public_id) for course in reg_courses]
-            dept_course_ids = [str(course.public_id) for course in dept_courses]
-            all_course_ids = reg_course_ids.extend(dept_course_ids)
-            unreg_course_ids = list()
-            for course_id in all_course_ids:
-                if all_course_ids.count(course_id) == 1:
-                    unreg_course_ids.append(course_id)
-            unreg_courses = Course.query.filter(Course.public_id in unreg_course_ids).all()
             return unreg_courses
     else:
         response_object = {
