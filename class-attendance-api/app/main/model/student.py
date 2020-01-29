@@ -11,6 +11,7 @@ class Student(db.Model):
     __tablename__ = "student"
 
     student_id = db.Column(db.String, primary_key=True)
+    rf_id = db.Column(db.String, primary_key=True)
     first_name = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(255), nullable=False)
     email_address = db.Column(db.String(255), unique=True, nullable=False)

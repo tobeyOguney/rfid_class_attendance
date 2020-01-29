@@ -14,6 +14,7 @@ def create_student(data):
         new_student = Student(
             public_id=str(uuid.uuid4()),
             student_id = data['student_id'],
+            rf_id = data['rf_id'],
             first_name = data['first_name'],
             last_name = data['last_name'],
             email_address = data['email_address'],
@@ -60,6 +61,7 @@ def update_student(public_id, data):
     student = Student.query.filter_by(public_id=public_id).first()
     if student:
         student.first_name = data['first_name']
+        student.rf_id = data['rf_id']
         student.last_name = data['last_name']
         student.email_address = data['email_address']
         student.faculty = data['faculty']

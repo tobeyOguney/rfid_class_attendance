@@ -7,6 +7,7 @@ class StudentDto:
     api = Namespace('student', description='student related operations')
     student = api.model('student', {
         "student_id": fields.String(required=True, description="student's ID number"),
+        "rf_id": fields.String(required=True, description="student's RFID number"),
         "first_name": fields.String(required=True, description="student's first name"),
         "last_name": fields.String(required=True, description="student's last name"),
         "email_address": fields.String(required=True, description="student's email address"),
@@ -16,6 +17,7 @@ class StudentDto:
         "password": fields.String(required=True, description="student's password")
     })
     student_update = api.model('student_update', {
+        "rf_id": fields.String(required=True, description="student's RFID number"),
         "first_name": fields.String(required=True, description="student's first name"),
         "last_name": fields.String(required=True, description="student's last name"),
         "email_address": fields.String(required=True, description="student's email address"),
@@ -25,6 +27,8 @@ class StudentDto:
         "password": fields.String(required=True, description="student's password") 
     })
     student_response = api.model('student_response', {
+        "student_id": fields.String(required=True, description="student's ID number"),
+        "rf_id": fields.String(required=True, description="student's RFID number"),
         "first_name": fields.String(required=True, description="student's first name"),
         "last_name": fields.String(required=True, description="student's last name"),
         "email_address": fields.String(required=True, description="student's email address"),
