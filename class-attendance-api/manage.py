@@ -13,6 +13,12 @@ app.register_blueprint(blueprint)
 
 app.app_context().push()
 
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
+app.after_request(add_cors_headers)
+
 manager = Manager(app)
 
 migrate = Migrate(app, db)

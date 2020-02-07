@@ -10,7 +10,7 @@ class Student(db.Model):
     """ Student Model for storing student related details """
     __tablename__ = "student"
 
-    student_id = db.Column(db.String, primary_key=True)
+    student_id = db.Column(db.String, unique=True, primary_key=True)
     rf_id = db.Column(db.String, primary_key=True)
     first_name = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(255), nullable=False)

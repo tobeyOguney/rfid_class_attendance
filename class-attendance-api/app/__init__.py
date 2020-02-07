@@ -1,5 +1,6 @@
 from flask_restplus import Api
 from flask import Blueprint
+from flask_cors import CORS
 
 from .main.controller.attendance_controller import api as attendance_ns
 from .main.controller.student_controller import api as student_ns
@@ -8,6 +9,7 @@ from .main.controller.course_controller import api as course_ns
 from .main.controller.auth_controller import api as auth_ns
 
 blueprint = Blueprint('api', __name__)
+CORS(blueprint, supports_credentials=True)
 
 api = Api(blueprint,
           title='CLASS ATTENDANCE SYSTEM API',

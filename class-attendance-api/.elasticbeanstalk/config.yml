@@ -1,16 +1,19 @@
 branch-defaults:
   default:
-    environment: testenv-barebone-flask-rest-api
+    environment: class-attendance-api
     group_suffix: null
 environment-defaults:
   class-attendance-api:
+    branch: null
+    repository: null
+  testenv-barebone-flask-rest-api:
     branch: null
     repository: null
 global:
   application_name: attendance-flask-rest-api
   branch: null
   default_ec2_keyname: ubuntu-aws
-  default_platform: python-3.6
+  default_platform: Python 3.6
   default_region: eu-central-1
   include_git_submodules: true
   instance_profile: null
