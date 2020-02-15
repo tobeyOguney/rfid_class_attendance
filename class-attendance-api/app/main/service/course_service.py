@@ -71,7 +71,7 @@ def update_course(public_id, data):
 def remove_course(public_id):
     course = Course.query.filter_by(public_id=public_id).first()
     if course:
-        Course.query.filter_by(public_id=public_id).delete()
+        db.session.delete(course)
         db.session.commit()
         response_object = {
             'status': 'success',

@@ -79,7 +79,7 @@ def update_lecturer(public_id, data):
 def remove_lecturer(public_id):
     lecturer = Lecturer.query.filter_by(public_id=public_id).first()
     if lecturer:
-        Lecturer.query.filter_by(public_id=public_id).delete()
+        db.session.delete(lecturer)
         db.session.commit()
         response_object = {
             'status': 'success',

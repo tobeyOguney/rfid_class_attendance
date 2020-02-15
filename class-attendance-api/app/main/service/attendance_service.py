@@ -136,7 +136,7 @@ def commit_attendance(hash_key, data):
 def remove_attendance(public_id):
     attendance = Attendance.query.filter_by(public_id=public_id).first()
     if attendance:
-        Attendance.query.filter_by(public_id=public_id).delete()
+        db.session.delete(attendance)
         db.session.commit()
         response_object = {
             'status': 'success',
