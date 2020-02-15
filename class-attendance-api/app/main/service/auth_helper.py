@@ -92,7 +92,7 @@ class Auth:
     def login_lecturer(data):
         try:
             # fetch the lecturer data
-            lecturer = Lecturer.query.filter_by(email_address=data.get('email')).first()
+            lecturer = Lecturer.query.filter_by(email_address=data.get('email_address')).first()
             if lecturer and lecturer.check_password(data.get('password')):
                 auth_token = Lecturer.encode_auth_token(lecturer.lecturer_id)
                 if auth_token:
