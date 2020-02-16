@@ -81,6 +81,9 @@ def update_student(public_id, data):
 def remove_student(public_id):
     student = Student.query.filter_by(public_id=public_id).first()
     if student:
+        student.courses.clear()
+        student.attendance_sessions.clear()
+        db.session.add(student)
         db.session.delete(student)
         db.session.commit()
         response_object = {
@@ -142,6 +145,7 @@ def remove_student_course(public_id, data):
     course = Course.query.filter_by(public_id=data['public_id']).first()
     if student and course:
         student.courses.remove(course)
+        save_changes(student)
         response_object = {
             'status': 'success',
             'message': 'Successfully removed.'

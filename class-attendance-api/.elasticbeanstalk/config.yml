@@ -1,9 +1,15 @@
 branch-defaults:
   default:
-    environment: class-attendance-api
+    environment: class-attendance-api-2
     group_suffix: null
 environment-defaults:
   class-attendance-api:
+    branch: null
+    repository: null
+  class-attendance-api-1:
+    branch: null
+    repository: null
+  class-attendance-api-2:
     branch: null
     repository: null
   testenv-barebone-flask-rest-api:

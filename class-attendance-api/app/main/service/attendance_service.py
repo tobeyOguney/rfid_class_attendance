@@ -19,7 +19,7 @@ def create_attendance(data):
             semester = data['semester'],
             open = True,
             created_on = datetime.datetime.utcnow(),
-            hash_key = int(round(time.time() * 1000))
+            hash_key = str(int(round(time.time() * 100)))
         )
         save_changes(new_attendance)
         lecturer.attendance_sessions.append(new_attendance)
@@ -136,6 +136,10 @@ def commit_attendance(hash_key, data):
 def remove_attendance(public_id):
     attendance = Attendance.query.filter_by(public_id=public_id).first()
     if attendance:
+        attendance._lecturer.clear()
+        attendance._course.clear()
+        attendance.students.clear()
+        db.session.add(attendance)
         db.session.delete(attendance)
         db.session.commit()
         response_object = {

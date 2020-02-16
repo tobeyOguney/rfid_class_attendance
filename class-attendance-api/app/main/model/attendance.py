@@ -10,7 +10,7 @@ class Attendance(db.Model):
     session = db.Column(db.String(255), nullable=False)
     semester = db.Column(db.String(255), nullable=False)
     created_on = db.Column(db.DateTime, nullable=False)
-    hash_key = db.Column(db.Integer, nullable=False)
+    hash_key = db.Column(db.String, nullable=False)
     open = db.Column(db.Boolean, nullable=False)
     _course = db.Column(db.String, db.ForeignKey('course.public_id'))
     _lecturer = db.Column(db.String, db.ForeignKey('lecturer.public_id'))

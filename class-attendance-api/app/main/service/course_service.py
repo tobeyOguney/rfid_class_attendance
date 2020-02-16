@@ -71,6 +71,9 @@ def update_course(public_id, data):
 def remove_course(public_id):
     course = Course.query.filter_by(public_id=public_id).first()
     if course:
+        course.lecturers.clear()
+        course.students.clear()
+        db.session.add(course)
         db.session.delete(course)
         db.session.commit()
         response_object = {

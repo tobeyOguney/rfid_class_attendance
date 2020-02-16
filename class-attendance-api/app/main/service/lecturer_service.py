@@ -79,6 +79,9 @@ def update_lecturer(public_id, data):
 def remove_lecturer(public_id):
     lecturer = Lecturer.query.filter_by(public_id=public_id).first()
     if lecturer:
+        lecturer.courses.clear()
+        lecturer.attendance_sessions.clear()
+        db.session.add(lecturer)
         db.session.delete(lecturer)
         db.session.commit()
         response_object = {
@@ -103,7 +106,7 @@ def get_lecturer_courses(public_id, registered):
                 or_(Course.department==lecturer.department, Course.strict==False),
                 ~Course.public_id.in_([course.public_id for course in lecturer.courses])
             )
-        )
+        ).all()
         if registered:
             return reg_courses
         else:
@@ -140,6 +143,7 @@ def remove_lecturer_course(public_id, data):
     course = Course.query.filter_by(public_id=data['public_id']).first()
     if lecturer and course:
         lecturer.courses.remove(course)
+        save_changes(lecturer)
         response_object = {
             'status': 'success',
             'message': 'Successfully removed.'
