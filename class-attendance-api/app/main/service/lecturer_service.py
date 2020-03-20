@@ -9,7 +9,7 @@ from app.main.model.course import Course
 
 
 def create_lecturer(data):
-    lecturer = Lecturer.query.filter_by(lecturer_id=data['lecturer_id']).first()
+    lecturer = Lecturer.query.filter(or_(Lecturer.email_address==data['email_address'], Lecturer.lecturer_id==data['lecturer_id'])).first()
     if not lecturer:
         new_lecturer = Lecturer(
             public_id=str(uuid.uuid4()),

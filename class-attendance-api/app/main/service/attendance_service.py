@@ -47,6 +47,18 @@ def get_attendance(public_id):
         return response_object, 409
 
 
+def get_course_attendance(course_id):
+    attendance = Attendance.query.filter_by(course_id=course_id).all()
+    if attendance:
+        return attendance, 201
+    else:
+        response_object = {
+            'status': 'fail',
+            'message': 'Attendance does not exist.'
+        }
+        return response_object, 409
+
+
 def get_students(public_id):
     attendance = Attendance.query.filter_by(public_id=public_id).first()
     if attendance:

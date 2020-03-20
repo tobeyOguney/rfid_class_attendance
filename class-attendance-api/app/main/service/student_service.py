@@ -9,7 +9,7 @@ from app.main.model.course import Course
 
 
 def create_student(data):
-    student = Student.query.filter_by(student_id=data['student_id']).first()
+    student = Student.query.filter(or_(Student.email_address==data['email_address'], Student.student_id==data['student_id'])).first()
     if not student:
         new_student = Student(
             public_id=str(uuid.uuid4()),
@@ -28,7 +28,7 @@ def create_student(data):
     else:
         response_object = {
             'status': 'fail',
-            'message': 'Student already exists. Please Log in.',
+            'message': 'Student already exists or email address has been used.',
         }
         return response_object, 409
 

@@ -1,3 +1,4 @@
+import flask_excel
 
 from flask import request
 from flask_restplus import Resource
@@ -33,6 +34,31 @@ class StudentAttendance(Resource):
     def get(self, public_id):
         """List all commited students"""
         return get_students(public_id)
+
+
+@api.route('/download/<public_id>')
+@api.param('public_id', 'The Attendance identifier')
+class DownloadAttendance(Resource):
+    @api.doc('Download Attendance session')
+    def get(self, public_id):
+        """Download attendance session"""
+        column_names = ['student_id', 'first_name', 'last_name']
+        response = get_students(public_id)
+        if response[1] == 201:
+            return flask_excel.make_response_from_query_sets(response[0], column_names, "xlsx",
+                                                            file_name="course_attendance.xlsx")
+        else:
+            return response
+
+
+@api.route('/course/<course_id>')
+@api.param('course_id', 'The Course identifier')
+class CourseAttendance(Resource):
+    @api.doc('List Of Created Attendances')
+    @api.marshal_list_with(_attendance_response)
+    def get(self, course_id):
+        """List all created attendances"""
+        return get_course_attendance(course_id)
 
 
 @api.route('/profile/<public_id>')

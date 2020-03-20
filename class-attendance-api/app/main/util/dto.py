@@ -113,7 +113,8 @@ class AttendanceDto:
         "semester": fields.String(required=True, description="academic semester"),
         "hash_key": fields.Integer(required=True, description="Hash Key"),
         "open": fields.Boolean(required=True, description="Ongoing Session"),
-        "public_id": fields.String(required=True, description="Public Identifier")
+        "public_id": fields.String(required=True, description="Public Identifier"),
+        "created_on": fields.String(required=False, description="attendance timestamp")
     })
     attendance_update = api.model('attendance_update', {
         "session": fields.String(required=True, description="academic session"),
